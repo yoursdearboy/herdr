@@ -52,7 +52,9 @@
           <label>Effort<select name="effort" class="effort-options"></select></label>
         </div>
         <p id="agent-lock-note" class="agent-lock-note" hidden>Agent settings can’t be changed while the agent is running.</p>
+        <p id="merge-task-status" class="merge-readiness" hidden></p>
         <div class="form-actions"><button class="primary" type="submit">Save changes</button><button type="button" class="focus-tab" id="focus-tab">Open Herdr tab ↗</button></div>
+        <button type="button" class="primary merge-task" id="merge-task" hidden>Merge into main</button>
       </form>
       <div class="terminal-heading"><span><i id="terminal-indicator"></i> TASK TERMINAL</span><span id="terminal-updated">Connecting…</span></div>
       <div class="terminal-output" id="terminal-output" aria-label="Interactive task terminal"></div>

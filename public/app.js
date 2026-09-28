@@ -312,8 +312,19 @@ async function openDetails(id) {
   const focusButton = document.querySelector('#focus-tab');
   focusButton.disabled = false;
   focusButton.textContent = task.herdrTabOpen ? 'Focus Herdr tab ↗' : 'Open Herdr tab ↗';
+  renderTaskMergeAction(task);
   detailsDialog.showModal();
   startTaskTerminal(task.id);
+}
+function renderTaskMergeAction(task) {
+  const button = document.querySelector('#merge-task');
+  const status = document.querySelector('#merge-task-status');
+  const readiness = task?.mergeReadiness;
+  const available = Boolean(task?.runInWorktree && readiness?.status === 'safe');
+  button.hidden = !available;
+  status.hidden = !task?.runInWorktree || !readiness || available;
+  status.className = `merge-readiness ${escapeHtml(readiness?.status || 'pending')}`;
+  status.textContent = task?.mergeProblem || readiness?.message || '';
 }
 function terminalStatus(text, state = 'connecting') {
   document.querySelector('#terminal-updated').textContent = text;
@@ -407,6 +418,19 @@ document.querySelector('#focus-tab').addEventListener('click', async () => {
   if (!selectedTaskId) return;
   try { await request(`/api/tasks/${selectedTaskId}/focus`, { method: 'POST' }); await refresh(); }
   catch (error) { window.alert(`Could not focus the task tab: ${error.message}`); }
+});
+document.querySelector('#merge-task').addEventListener('click', async () => {
+  if (!selectedTaskId) return;
+  const button = document.querySelector('#merge-task');
+  button.disabled = true;
+  try {
+    await request(`/api/tasks/${selectedTaskId}`, { method: 'PATCH', body: JSON.stringify({ status: 'done' }) });
+    await refresh();
+    const task = tasks.find((item) => item.id === selectedTaskId);
+    if (task) renderTaskMergeAction(task);
+  } catch (error) {
+    window.alert(`Could not merge task: ${error.message}`);
+  } finally { button.disabled = false; }
 });
 document.querySelector('#edit-task-form').addEventListener('submit', async (event) => {
   event.preventDefault();
