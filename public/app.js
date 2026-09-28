@@ -79,8 +79,9 @@ function syncEditWorktreeOption(loadTaskValue = false) {
   const checkbox = editForm.elements.runInWorktree;
   const label = checkbox.closest('.checkbox-label');
   const task = tasks.find((item) => item.id === selectedTaskId);
-  const supported = nativeWorktreeAgents.has(editForm.elements.agentKind.value) && !task?.launch;
+  const supported = nativeWorktreeAgents.has(editForm.elements.agentKind.value);
   label.hidden = !supported;
+  checkbox.disabled = Boolean(task?.launch);
   if (!supported) checkbox.checked = false;
   else if (loadTaskValue) checkbox.checked = Boolean(task?.runInWorktree);
 }
@@ -227,8 +228,10 @@ function cardMarkup(task) {
   const tabOpen = task.herdrTabOpen;
   const attachments = task.attachments || [];
   const readiness = task.mergeReadiness;
-  const mergeStatus = task.runInWorktree ? `<p class="merge-readiness ${safe(readiness?.status || 'pending')}" title="${safe(task.mergeProblem || readiness?.message || 'Worktree has not started yet.')}">${safe(task.mergeProblem ? task.mergeProblem : readiness?.status === 'safe' || readiness?.status === 'merged' ? readiness.message : readiness?.status === 'problem' ? readiness.message : 'Merge status pending')}</p>` : '';
-  return `<article class="task-card" draggable="true" tabindex="0" data-id="${safe(task.id)}"><div class="card-top"><span class="priority ${safe(task.priority)}"><i></i>${safe(task.priority)}</span><button class="task-state ${tabOpen ? 'running' : 'stopped'}" data-open-tab="${safe(task.id)}" title="${tabOpen ? 'Herdr tab open — click to focus' : 'No Herdr tab — click to open'}" aria-label="${tabOpen ? 'Focus open Herdr tab' : 'Open Herdr tab'}">●</button><div class="card-menu-wrap"><button class="delete-card" data-card-menu aria-expanded="false" title="Card options" aria-label="Card options">···</button><div class="card-menu" hidden><button data-close-tab="${safe(task.id)}">Close Herdr tab</button><button data-delete="${safe(task.id)}">Delete card</button></div></div></div><h3>${safe(task.title)}</h3>${task.description ? `<p class="card-description">${safe(task.description)}</p>` : ''}${attachments.length ? `<p class="card-attachments" title="${attachments.map((file) => safe(file.name)).join(', ')}">📎 ${attachments.map((file) => safe(file.name)).join(', ')}</p>` : ''}${mergeStatus}<div class="card-bottom"><span class="task-date"><span>◷</span> ${date}</span><span class="avatar">${safe(task.title.trim().slice(0, 1).toUpperCase())}</span></div></article>`;
+  const branch = task.launch?.worktree?.branch;
+  const branchLabel = branch ? `<p class="task-branch" title="${safe(branch)}">Branch: ${safe(branch)}</p>` : '';
+  const mergeStatus = branch ? `<p class="merge-readiness ${safe(readiness?.status || 'pending')}" title="${safe(task.mergeProblem || readiness?.message || 'Merge status pending.')}">${safe(task.mergeProblem ? task.mergeProblem : readiness?.status === 'safe' || readiness?.status === 'merged' ? readiness.message : readiness?.status === 'problem' ? readiness.message : 'Merge status pending')}</p>` : '';
+  return `<article class="task-card" draggable="true" tabindex="0" data-id="${safe(task.id)}"><div class="card-top"><span class="priority ${safe(task.priority)}"><i></i>${safe(task.priority)}</span><button class="task-state ${tabOpen ? 'running' : 'stopped'}" data-open-tab="${safe(task.id)}" title="${tabOpen ? 'Herdr tab open — click to focus' : 'No Herdr tab — click to open'}" aria-label="${tabOpen ? 'Focus open Herdr tab' : 'Open Herdr tab'}">●</button><div class="card-menu-wrap"><button class="delete-card" data-card-menu aria-expanded="false" title="Card options" aria-label="Card options">···</button><div class="card-menu" hidden><button data-close-tab="${safe(task.id)}">Close Herdr tab</button><button data-delete="${safe(task.id)}">Delete card</button></div></div></div><h3>${safe(task.title)}</h3>${task.description ? `<p class="card-description">${safe(task.description)}</p>` : ''}${attachments.length ? `<p class="card-attachments" title="${attachments.map((file) => safe(file.name)).join(', ')}">📎 ${attachments.map((file) => safe(file.name)).join(', ')}</p>` : ''}${branchLabel}${mergeStatus}<div class="card-bottom"><span class="task-date"><span>◷</span> ${date}</span><span class="avatar">${safe(task.title.trim().slice(0, 1).toUpperCase())}</span></div></article>`;
 }
 
 async function refresh() { notifyTaskStatusChanges(await request('/api/tasks')); render(); }
