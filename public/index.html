@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f9">
+  <title>Herdr Kanban</title>
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/details.css">
+  <link rel="stylesheet" href="/vendor/xterm.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/"><span class="brand-mark">h</span><span>herdr<span class="brand-light">/board</span></span></a>
+      <div class="top-actions"><span class="sync"><i></i> Local workspace</span><button class="notification-toggle" id="notification-toggle" type="button">Enable notifications</button><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme">☾</button><button class="primary" id="new-task"><span>＋</span> New task</button></div>
+    </header>
+    <section class="intro">
+      <div><div class="eyebrow">YOUR WORKSPACE <span>·</span> TASK FLOW</div><h1>Good work starts<br><span>with a clear board.</span></h1><p>Keep the next step visible. Move work forward, one card at a time.</p></div>
+      <div class="summary"><div class="summary-label">BOARD OVERVIEW</div><div class="summary-numbers"><div><strong id="total-count">0</strong><span>total tasks</span></div><div class="summary-divider"></div><div><strong id="active-count">0</strong><span>in progress</span></div></div><div class="progress-track"><div id="progress-fill"></div></div><div class="progress-copy"><span>Completion</span><strong id="progress-label">0%</strong></div></div>
+    </section>
+    <p class="agent-warning" id="agent-warning" role="status" hidden></p>
+    <section class="board" id="board" aria-label="Kanban board"></section>
+    <footer><span><span class="keyboard">↕</span> Drag cards between columns to update their status</span><span>Saved automatically <b>·</b> Private to this machine</span></footer>
+  </main>
+  <dialog id="task-dialog">
+    <form method="dialog" id="task-form">
+      <div class="modal-top"><div><div class="eyebrow">NEW CARD</div><h2>Create a task</h2></div><button class="icon-button" type="button" aria-label="Close" onclick="this.closest('dialog').close()">×</button></div>
+      <label>Task title<input name="title" maxlength="120" required placeholder="What needs to get done?"></label>
+      <label>Description <span class="optional">OPTIONAL</span><textarea name="description" maxlength="1000" rows="4" placeholder="Add a little context…"></textarea></label>
+      <label>Attach files <span class="optional">OPTIONAL · 30 MiB TOTAL</span><input id="task-attachments" type="file" multiple><span id="attachment-list" class="attachment-list" aria-live="polite">No files attached</span></label>
+      <label>Priority<select name="priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select></label>
+      <label class="checkbox-label" hidden><input type="checkbox" name="runInWorktree" checked> Run task in worktree</label>
+      <label>Agent<select name="agentKind" class="agent-options"></select></label>
+      <label>Model<select name="model" class="model-options"></select></label>
+      <label>Effort<select name="effort" class="effort-options"></select></label>
+      <div class="form-actions"><button class="secondary" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="primary" id="submit-task" type="submit">Create task <span>→</span></button></div>
+    </form>
+  </dialog>
+  <dialog id="details-dialog" class="details-dialog">
+    <section class="details-shell">
+      <header class="details-header"><div><div class="eyebrow">TASK DETAILS</div><h2 id="details-title"></h2><p id="details-description"></p></div><button class="icon-button" id="close-details" aria-label="Close">×</button></header>
+      <form id="edit-task-form" class="edit-task-form">
+        <label>Task title<input name="title" maxlength="120" required></label>
+        <label>Description<textarea name="description" maxlength="1000" rows="3"></textarea></label>
+        <label>Add files <span class="optional">DROP FILES ANYWHERE IN THIS WINDOW · 30 MiB TOTAL</span><input id="edit-attachments" type="file" multiple><span id="edit-attachment-list" class="attachment-list" aria-live="polite">No files attached</span></label>
+        <label class="checkbox-label" hidden><input type="checkbox" name="runInWorktree"> Run task in worktree</label>
+        <div class="edit-selects">
+          <label>Priority<select name="priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select></label>
+          <label>Agent<select name="agentKind" class="agent-options"></select></label>
+          <label>Model<select name="model" class="model-options"></select></label>
+          <label>Effort<select name="effort" class="effort-options"></select></label>
+        </div>
+        <p id="agent-lock-note" class="agent-lock-note" hidden>Agent settings can’t be changed while the agent is running.</p>
+        <div class="form-actions"><button class="primary" type="submit">Save changes</button><button type="button" class="focus-tab" id="focus-tab">Open Herdr tab ↗</button></div>
+      </form>
+      <div class="terminal-heading"><span><i id="terminal-indicator"></i> TASK TERMINAL</span><span id="terminal-updated">Connecting…</span></div>
+      <div class="terminal-output" id="terminal-output" aria-label="Interactive task terminal"></div>
+    </section>
+  </dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

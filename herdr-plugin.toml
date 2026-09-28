@@ -1,0 +1,19 @@
+id = "herdr.kanban"
+name = "Herdr Kanban"
+version = "0.1.0"
+min_herdr_version = "0.8.2"
+description = "A local web dashboard for planning and tracking tasks."
+platforms = ["linux", "macos", "windows"]
+
+[[panes]]
+id = "dashboard"
+title = "Kanban dashboard"
+placement = "overlay"
+command = ["node", "--eval", "import('node:path').then(({join})=>import('node:url').then(({pathToFileURL})=>import(pathToFileURL(join(process.env.HERDR_PLUGIN_ROOT,'server.mjs')))))"]
+
+[[actions]]
+id = "open-dashboard"
+title = "Open Kanban dashboard"
+description = "Start the local task dashboard in an overlay pane."
+contexts = ["workspace", "pane"]
+command = ["node", "--eval", "import('node:path').then(({join})=>import('node:url').then(({pathToFileURL})=>import(pathToFileURL(join(process.env.HERDR_PLUGIN_ROOT,'open-dashboard.mjs')))))"]
